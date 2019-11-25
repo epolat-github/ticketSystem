@@ -53,7 +53,8 @@ int main(){
     int flightCount = 0;
 
     char **flightNames = NULL;
-
+    printf("asd");
+    
     //f name tk1212
     if (flightNames == NULL){
         flightNames = initFlightList(flightNames, "tk1212", &flightCount);
