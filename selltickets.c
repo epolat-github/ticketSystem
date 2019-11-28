@@ -161,7 +161,6 @@ struct passenger{
 
     char flightName[7];
 
-    int priority;   //Lower = higher priority
 };
 
 // Passenger Node
@@ -169,11 +168,34 @@ struct passengerNode{
     struct passenger passInfo;
 
     struct passengerNode* next;
+
+    int priority;   //Lower = higher priority
 };
 
 // Create New passengerNode
-struct passengerNode* newCustomer(enum classes desClass, int priority){
+struct passengerNode* newCustomer(struct passenger passTemp, int priority){
+    struct passengerNode *temp = malloc(sizeof(struct passengerNode));
+    // Pass info
+    temp->passInfo.desiredClass = passTemp.desiredClass;
+    strcpy(temp->passInfo.flightName, passTemp.flightName);
+    temp->passInfo.passengerName = passTemp.passengerName;
 
+    temp->priority = priority;
+    temp->next = NULL;
+
+    return temp;
+}
+
+// Get the first element
+struct passenger peek(struct passengerNode** head){
+    return (*head)->passInfo;
+}
+
+// Pop the highest priority
+struct passenger *pop(struct passengerNode** head){
+    struct passengerNode *temp = *head;
+    (*head) = (*head)->next;
+    return temp;    
 }
 
 
