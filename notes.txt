@@ -1,0 +1,13 @@
++uçuş isimleri ve koltuk sayıları doğru ekleniyor mu test et.
+    input.txt okunduktan ve işlemler yapıldıktan sonra array'leri bastır:
+        format = "flight ismi = class sayıları yanyana"
++pdf'deki doğru outputu bastır her eklemede.
+
++testlerden sonra queue'ye başla
+
+-------calloc ve memset kullanılır mı / sadece pdf'de denen struct'ları mı kullanabiliriz yoksa kendimiz de oluşturabilir miyiz? eg. flight structı
+
+arrayleri realloc yaparken tempi döndür, diğerini free'le.
+
+    flightNames ve flightSeats arrayleri kalkabilir. Tüm bilgileri tutan bir "flight struct" eklenebilir. Deneme.txt'deki
+yolla "flights" arrayinde bu structlar tutulabilir. 
