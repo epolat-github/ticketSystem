@@ -11,3 +11,6 @@ arrayleri realloc yaparken tempi döndür, diğerini free'le.
 
     flightNames ve flightSeats arrayleri kalkabilir. Tüm bilgileri tutan bir "flight struct" eklenebilir. Deneme.txt'deki
 yolla "flights" arrayinde bu structlar tutulabilir. 
+
+- stack ve queue'daki isimleri değiştir.
+--------priority'si normalde olmayan sınıflara input'ta priority girilmişse == "error"

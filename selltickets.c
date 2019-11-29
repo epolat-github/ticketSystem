@@ -173,7 +173,7 @@ struct passengerNode{
 };
 
 // Create New passengerNode
-struct passengerNode* newCustomer(struct passenger passTemp, int priority){
+struct passengerNode* newPassengerNode(struct passenger passTemp, int priority){
     struct passengerNode *temp = malloc(sizeof(struct passengerNode));
     // Pass info
     temp->passInfo.desiredClass = passTemp.desiredClass;
@@ -187,16 +187,47 @@ struct passengerNode* newCustomer(struct passenger passTemp, int priority){
 }
 
 // Get the first element
-struct passenger peek(struct passengerNode** head){
+struct passenger peekQueue(struct passengerNode** head){
     return (*head)->passInfo;
 }
 
 // Pop the highest priority
-struct passenger *pop(struct passengerNode** head){
+struct passengerNode *popQueue(struct passengerNode** head){
     struct passengerNode *temp = *head;
     (*head) = (*head)->next;
     return temp;    
 }
+
+//Check whether queue is empty or not
+int checkEmptyQueue(struct passengerNode **head){
+    if(*head == NULL){
+        return 1;
+    }
+    return 0;
+}
+
+// Add new passenger
+void pushQueue(struct passengerNode **head, struct passenger passenger, int priority){
+    struct passengerNode *start = *head; //start yerine başka kelime
+
+    struct passengerNode *temp = newPassengerNode(passenger, priority);
+
+    // If new passenger is more important
+    if((*head)->priority > priority){
+        temp->next = *head;
+        *head = temp;
+    }
+    else{
+        while(start->next != NULL && start->next->priority < priority){
+            start = start->next;
+        }
+
+        temp->next = start->next;
+        start->next = temp;
+    }
+}
+
+
 
 
 
@@ -226,8 +257,12 @@ int main(int argc, char *argv[]){
         return -1;
     }
 
-    //Initialize Stack
-    struct SeatNode* main = NULL;
+    //Declare Stack Root Node
+    struct SeatNode *main = NULL;
+
+    //Declare Queue Root Node
+    struct passengerNode *queueRoot = NULL;
+    
 
     //Read Line by Line
     while (fgets(inputLine, MAXCHAR, fptr) != NULL){
@@ -338,39 +373,61 @@ int main(int argc, char *argv[]){
                 paramPtr = strtok(NULL, " ");
                 char *name = paramPtr;  //check
                 passenger_temp.passengerName = name;
-
                 
                 //Priority
                 paramPtr = strtok(NULL, " ");
                 
                 //pdf enum diyor check et
                 //Determine priority of the passenger
+                int priority_temp;
                 if(strcmp(paramPtr, "diplomat\r\n") == 0)   //'\r\n' is necessary to compare last token of the line
                 {
-                    passenger_temp.priority = 0;
+                    priority_temp = 0;
                 }
                 else if (strcmp(classNames[class_tmp], "business") == 0)
                 {
-                    passenger_temp.priority = 1;                    
+                    priority_temp = 1;                    
                 }
                 else if (strcmp(paramPtr, "veteran\r\n") == 0)
                 {
-                    passenger_temp.priority = 2;
+                    priority_temp = 2;
                 }
                 else if (strcmp(classNames[class_tmp], "economy") == 0)
                 {
-                    passenger_temp.priority = 3;
+                    priority_temp = 3;
                 }
                 else if (strcmp(classNames[class_tmp], "standard") == 0)
                 {
-                    passenger_temp.priority = 4;
+                    priority_temp = 4;
                 }
                 else
                 {
                     printf("Undetermined Priority!");
                 }
 
-                printf("%s %s %s %d\n", passenger_temp.passengerName, classNames[passenger_temp.desiredClass], passenger_temp.flightName, passenger_temp.priority);
+                printf("Passing passenger: %s %s %s %d\n", passenger_temp.passengerName, 
+                                            classNames[passenger_temp.desiredClass],
+                                             passenger_temp.flightName,
+                                              priority_temp);
+
+                if (queueRoot != NULL){  //Add to queue
+                    pushQueue(&queueRoot, passenger_temp, priority_temp);
+                    
+                }
+                else{   // Initialize queue   
+                    queueRoot = newPassengerNode(passenger_temp, priority_temp);
+                }
+                
+                struct passenger temp = peekQueue(&queueRoot);
+                    printf("Head passenger: %s %s %s\n", temp.passengerName,
+                                                            temp.flightName,
+                                                            classNames[temp.desiredClass]);
+
+
+
+
+
+                // printf("%s %s %s %d\n", passenger_temp.passengerName, classNames[passenger_temp.desiredClass], passenger_temp.flightName, passenger_temp.priority);
                 
             }
             // else
