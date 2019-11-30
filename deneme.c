@@ -63,10 +63,11 @@ int main(){
 
     char name_temp[7];
     
-    struct deneme foo;
+    
     struct deneme *array = NULL;
     for (size_t i = 0; i < 3; i++)
     {
+        struct deneme foo;
         array = realloc(array, (i + 1) * sizeof(*array));
         printf("Name: ");
         scanf("%s", name_temp);
