@@ -23,6 +23,7 @@ struct flight
     struct queueNode *rootNode;
     int hasRoot;
     int businessQueueCount, economyQueueCount, standardQueueCount;
+    int totalPassengerCount;
 };
 
 //ticket struct
@@ -265,6 +266,7 @@ int main(int argc, char *argv[])
                     flight_temp.businessQueueCount = 0;
                     flight_temp.economyQueueCount = 0;
                     flight_temp.standardQueueCount = 0;
+                    flight_temp.totalPassengerCount = 0;
 
                     if (flightsArray == NULL)
                     { //no other flights
@@ -403,10 +405,10 @@ int main(int argc, char *argv[])
                 }
 
                 //Passenger Name
-                char passengerName[15];
+                char *passengerName;
                 paramPtr = strtok(NULL, " ");
-                strcpy(passengerName, paramPtr);
-                // char *passengerName = paramPtr;
+                // strcpy(passengerName, paramPtr);
+                passengerName = paramPtr;
 
                 //Priority
                 paramPtr = strtok(NULL, " ");
@@ -418,12 +420,12 @@ int main(int argc, char *argv[])
                 {
                     if (strcmp(priority, "diplomat\r\n") == 0)
                     {
-                        printf("diplomat\n");
+                        // printf("diplomat\n");
                         priorityForQueue = 0;
                     }
                     else if (strcmp(priority, "veteran\r\n") == 0)
                     {
-                        printf("veteran\n");
+                        // printf("veteran\n");
                         priorityForQueue = 2;
                     }
                 }
@@ -442,6 +444,12 @@ int main(int argc, char *argv[])
                         priorityForQueue = 4;
                     }
                 }
+
+                passengerName = strtok(passengerName, "\r");
+                strtok(NULL, " "); //   for \n 
+                // char *passengerName = paramPtr;              
+
+                
 
                 int flightIndex = -1;
                 for (size_t i = 0; i < flightCount; i++)
@@ -474,18 +482,21 @@ int main(int argc, char *argv[])
                     if (class == 0)
                     {
                         flightsArray[flightIndex].businessQueueCount++;
+                        flightsArray[flightIndex].totalPassengerCount++;
                         printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
                                flightsArray[flightIndex].businessQueueCount);
                     }
                     else if (class == 1)
                     {
                         flightsArray[flightIndex].economyQueueCount++;
+                        flightsArray[flightIndex].totalPassengerCount++;
                         printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
                                flightsArray[flightIndex].economyQueueCount);
                     }
                     else if (class == 2)
                     {
                         flightsArray[flightIndex].standardQueueCount++;
+                        flightsArray[flightIndex].totalPassengerCount++;
                         printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
                                flightsArray[flightIndex].standardQueueCount);
                     }
@@ -502,11 +513,15 @@ int main(int argc, char *argv[])
     for (size_t i = 0; i < flightCount; i++)
     {
         printf("Queue of %s: \n", flightsArray[i].flightName);
-        while (!checkEmptyQueue(&(flightsArray[i].rootNode)))
+        while (flightsArray[i].hasRoot == 1)
         {
             struct passenger temp = peekQueue(&(flightsArray[i].rootNode));
             printf("%s %s %s\n", temp.passengerName, temp.flightName, classNames[temp.wantedClass]);
             popQueue(&(flightsArray[i].rootNode));
+            flightsArray[i].totalPassengerCount--;
+            if(flightsArray[i].totalPassengerCount == 0){
+                flightsArray[i].hasRoot = 0;
+            }
         }
     }
 

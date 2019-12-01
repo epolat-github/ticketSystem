@@ -2,28 +2,35 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+char* replace_char(char* str, char find){
+    // char *current_pos = strchr(str,find);
+    // *current_pos = '\0';
+    int i;
+    for(i = 0; *(str + i) != '\0'; ++i){
+        if(str[i] == find){
+            str[i] = '\0';
+        }
+    }
+    return str;
+}
+
 int main(){
 
-    FILE *fileptr;
+    char line[] = "deneme ahmet\r\n";
+    char line2[] = "deneme2 denemedeneme";
+    
+    char *txt1 = strtok(line, " ");
+    printf("%s\n", txt1);
+    txt1 = strtok(NULL, " ");
+    char *name = strtok(txt1, "\r");
+    printf("%s", name);
+    strtok(NULL, " ");
 
-    char strippedName[15];
-    char priority[10];
-    char flight_name[] = "deneme psg_bus_1\r\n";
-    char flight_name2[] = "deneme psg_bus_2 veteran";
-    char *ptr = strtok(flight_name2, " ");
-    printf("%s\n", ptr);
-    ptr = strtok(NULL, " ");    //psg_bus_1\r\n
-    strcpy(strippedName, ptr);
-    char *ptr2 = strtok(strippedName, "\r\n");
-    strcpy(strippedName, ptr2);
-    ptr2 = strtok(NULL, " ");
-    strcpy(priority, ptr);
-    printf("%s", strippedName);
-    if (priority){
-        printf("%s", priority);
-    }
-
-
+    char *txt2 = strtok(line2, " ");
+    printf("%s", txt2);
+    char *name2 = strtok(NULL, " ");
+    printf("%s", name2); 
 
 
 
