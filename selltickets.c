@@ -140,7 +140,7 @@ void pushQueue(struct queueNode **head, char *flightName, char *classStr, char *
 
     if((*head)->priority > priority){
         temp->next = *head;
-        (*head)->next = temp;
+        (*head) = temp;
     }
     else{
         while(start->next != NULL && start->next->priority < priority){
@@ -160,6 +160,15 @@ void popQueue(struct queueNode** head){
     struct queueNode *temp = *head;
     (*head) = (*head)->next;
     free(temp);
+}
+
+int checkEmptyQueue(struct queueNode **head){
+    if (head == NULL){
+        return 1;
+    }
+    else{
+        return 0;
+    }
 }
 
 
@@ -363,21 +372,28 @@ int main(int argc, char *argv[]){
 
                 int priorityForQueue;
 
-                if(strcmp(priority, "diplomat\r\n") == 0){
-                    priorityForQueue = 0;
-                }     
-                else if(strcmp(classStr, "business") == 0){
-                    priorityForQueue = 1;
+                if(priority){
+                    if(strcmp(priority, "diplomat\r\n") == 0){
+                        priorityForQueue = 0;
+                    }   
+                    else if(strcmp(priority, "veteran\r\n") == 0){
+                        priorityForQueue = 2;
+                    }
                 }
-                else if(strcmp(priority, "veteran\r\n") == 0){
-                    priorityForQueue = 2;
+                else{
+                    if(strcmp(classStr, "business") == 0){
+                        priorityForQueue = 1;
+                    }                
+                    else if(strcmp(classStr, "economy") == 0){
+                        priorityForQueue = 3;
+                    }
+                    else if(strcmp(classStr, "standard")){
+                        priorityForQueue = 4;
+                    }
                 }
-                else if(strcmp(classStr, "economy") == 0){
-                    priorityForQueue = 3;
-                }
-                else if(strcmp(classStr, "standard")){
-                    priorityForQueue = 4;
-                }
+
+                  
+                
 
                 int flightIndex = -1;
                 for (size_t i = 0; i < flightCount; i++)
@@ -394,9 +410,9 @@ int main(int argc, char *argv[]){
                     printf("No such flight!\n");
                 }
                 else{   //flight found
-                    if(flightsArray[flightIndex].rootNode != 1){    //if queue has not initialized
+                    if(flightsArray[flightIndex].hasRoot != 1){    //if queue has not initialized
                         flightsArray[flightIndex].rootNode = newQueueNode(flightName, classStr, passengerName, priorityForQueue);
-                        flightsArray[flightIndex].rootNode = 1;
+                        flightsArray[flightIndex].hasRoot = 1;
                     }
                     else{   //if queue has been initialized
                         pushQueue(&(flightsArray[flightIndex].rootNode), flightName, classStr, passengerName, priorityForQueue);
@@ -411,10 +427,19 @@ int main(int argc, char *argv[]){
 
                 
             }
+
             paramPtr = strtok(NULL, " ");
         }
     }
-
+    for (size_t i = 0; i < flightCount; i++)
+    {
+        while(!checkEmptyQueue(&(flightsArray[i].rootNode))){
+            struct passenger temp = peekQueue(&(flightsArray[i].rootNode));
+            printf("%s %s %s\n", temp.passengerName, temp.flightName, classNames[temp.wantedClass]);
+            popQueue(&(flightsArray[i].rootNode));
+        }
+    }
+    
     
     fclose(fptr);
 
