@@ -144,6 +144,7 @@ void pushQueue(struct queueNode **head, char *flightName, int class, char *passe
         temp->next = *head;
         (*head) = temp;
     }
+    
     else
     {
         while (start->next != NULL && start->next->priority < priority)
