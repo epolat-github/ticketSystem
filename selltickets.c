@@ -10,12 +10,14 @@ const char* classNames[] = {"business", "economy", "standard"};
 //flight struct
 struct flight
 {
-    char flightName[7];
+    char flightName[8];
+    //seat counts
     int businessCount, economyCount, standardCount;
 
     //for priority queue
     struct queueNode *rootNode;
     int hasRoot;
+    int businessQueueCount, economyQueueCount, standardQueueCount;
 };
 
 //ticket struct
@@ -92,8 +94,8 @@ void peek(struct SeatNode* main){
 //passenger struct
 struct passenger
 {
-    char *passengerName;
-    char *flightName;
+    char passengerName[15];
+    char flightName[8];
     enum classes wantedClass;
     enum classes givenClass;
 
@@ -106,37 +108,25 @@ struct queueNode
     struct queueNode *next;
 };
 
-struct queueNode *newQueueNode(char *flightName, char *classStr, char *passengerName, int priority)
+struct queueNode *newQueueNode(char flightName[8], int class, char passengerName[15], int priority)
 {
     struct queueNode *temp = malloc(sizeof(struct queueNode));
     temp->priority = priority;
     temp->next = NULL;
-    temp->passenger.flightName = flightName;
-    temp->passenger.passengerName = passengerName;
-
-    int class;
-    if(strcmp(classStr, "business") == 0){
-        class = 0;
-    }
-    else if(strcmp(classStr, "economy") == 0){
-        class = 1;
-    }
-    else if(strcmp(classStr, "standard") == 0){
-        class = 2;
-    }
-    else{
-        printf("Undetermined class.\n");
-    }
+    // temp->passenger.flightName = flightName;
+    strcpy(temp->passenger.flightName, flightName);
+    // temp->passenger.passengerName = passengerName;
+    strcpy(temp->passenger.passengerName, passengerName);
 
     temp->passenger.wantedClass = class;
 
     return temp;
 }
 
-void pushQueue(struct queueNode **head, char *flightName, char *classStr, char *passengerName, int priority){
+void pushQueue(struct queueNode **head, char *flightName, int class, char *passengerName, int priority){
     struct queueNode *start = (*head);
 
-    struct queueNode *temp = newQueueNode(flightName, classStr, passengerName, priority);
+    struct queueNode *temp = newQueueNode(flightName, class, passengerName, priority);
 
     if((*head)->priority > priority){
         temp->next = *head;
@@ -247,6 +237,10 @@ int main(int argc, char *argv[]){
 
                     struct flight flight_temp;
 
+                    flight_temp.businessQueueCount = 0;
+                    flight_temp.economyQueueCount = 0;
+                    flight_temp.standardQueueCount = 0;
+
                     if (flightsArray == NULL){ //no other flights
                         flightsArray = malloc(sizeof(*flightsArray));
                         strcpy(flight_temp.flightName, ticketTemp.flightName); //check
@@ -355,16 +349,32 @@ int main(int argc, char *argv[]){
                 struct passenger passenger_temp;
 
                 //Flight Name
+                char flightName[8];
                 paramPtr = strtok(NULL, " ");
-                char *flightName = paramPtr;
+                strcpy(flightName, paramPtr);
+                // char *flightName = paramPtr;
 
                 //Class
+                int class;
                 paramPtr = strtok(NULL, " ");
-                char *classStr = paramPtr;
+                if(strcmp(paramPtr, "business") == 0){
+                    class = 0;
+                }                
+                else if(strcmp(paramPtr, "economy") == 0){
+                    class = 1;
+                }
+                else if(strcmp(paramPtr, "standard")){
+                    class = 2;
+                }
+                else{
+                    printf("Undetermined class!\n");
+                }
 
                 //Passenger Name
+                char passengerName[15];
                 paramPtr = strtok(NULL, " ");
-                char *passengerName = paramPtr;
+                strcpy(passengerName, paramPtr);
+                // char *passengerName = paramPtr;
 
                 //Priority
                 paramPtr = strtok(NULL, " ");
@@ -374,20 +384,22 @@ int main(int argc, char *argv[]){
 
                 if(priority){
                     if(strcmp(priority, "diplomat\r\n") == 0){
+                        printf("diplomat\n");
                         priorityForQueue = 0;
                     }   
                     else if(strcmp(priority, "veteran\r\n") == 0){
+                        printf("veteran\n");
                         priorityForQueue = 2;
                     }
                 }
                 else{
-                    if(strcmp(classStr, "business") == 0){
+                    if(class == 0){ //just business
                         priorityForQueue = 1;
                     }                
-                    else if(strcmp(classStr, "economy") == 0){
+                    else if(class == 1){    //just economy
                         priorityForQueue = 3;
                     }
-                    else if(strcmp(classStr, "standard")){
+                    else if(class == 2){  //just standard
                         priorityForQueue = 4;
                     }
                 }
@@ -411,14 +423,33 @@ int main(int argc, char *argv[]){
                 }
                 else{   //flight found
                     if(flightsArray[flightIndex].hasRoot != 1){    //if queue has not initialized
-                        flightsArray[flightIndex].rootNode = newQueueNode(flightName, classStr, passengerName, priorityForQueue);
+                        flightsArray[flightIndex].rootNode = newQueueNode(flightName, class, passengerName, priorityForQueue);
                         flightsArray[flightIndex].hasRoot = 1;
                     }
                     else{   //if queue has been initialized
-                        pushQueue(&(flightsArray[flightIndex].rootNode), flightName, classStr, passengerName, priorityForQueue);
+                        pushQueue(&(flightsArray[flightIndex].rootNode), flightName, class, passengerName, priorityForQueue);
                     }
-                    
-                    
+                    //Proper Outputs and increase passenger counts
+                    if(class = 0)
+                    {
+                        flightsArray[flightIndex].businessQueueCount++;
+                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class], 
+                                                        flightsArray[flightIndex].businessQueueCount); 
+                    }
+                    else if (class = 1)
+                    {
+                        flightsArray[flightIndex].economyQueueCount++;
+                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class], 
+                                                        flightsArray[flightIndex].economyQueueCount); 
+                    }
+                    else if (class = 2)
+                    {
+                        flightsArray[flightIndex].standardQueueCount++;
+                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class], 
+                                                        flightsArray[flightIndex].standardQueueCount); 
+                        
+                    }
+                                           
                 }
                 
 
@@ -431,8 +462,10 @@ int main(int argc, char *argv[]){
             paramPtr = strtok(NULL, " ");
         }
     }
+    printf("LAST FORM OF QUEUE:\n"); 
     for (size_t i = 0; i < flightCount; i++)
     {
+        printf("Queue of %s: \n", flightsArray[i].flightName);
         while(!checkEmptyQueue(&(flightsArray[i].rootNode))){
             struct passenger temp = peekQueue(&(flightsArray[i].rootNode));
             printf("%s %s %s\n", temp.passengerName, temp.flightName, classNames[temp.wantedClass]);
