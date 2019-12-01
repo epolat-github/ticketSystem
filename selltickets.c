@@ -4,8 +4,13 @@
 
 #define MAXCHAR 500
 
-enum classes {business, economy, standard};
-const char* classNames[] = {"business", "economy", "standard"};
+enum classes
+{
+    business,
+    economy,
+    standard
+};
+const char *classNames[] = {"business", "economy", "standard"};
 
 //flight struct
 struct flight
@@ -23,23 +28,23 @@ struct flight
 //ticket struct
 struct ticket
 {
-    char *flightName; //check
+    char flightName[8]; //check
     enum classes class;
 };
 
 //STACK FOR SEATS
-struct SeatNode     //represents each seat
+struct SeatNode //represents each seat
 {
     char *flightName;
     enum classes class;
-    struct SeatNode* next;
+    struct SeatNode *next;
 };
 
 // add new seat to stack
-struct SeatNode* newSeat(struct ticket ticket)
+struct SeatNode *newSeat(struct ticket ticket)
 {
-    struct SeatNode* seatNode;
-    seatNode = (struct SeatNode*)malloc(sizeof(struct SeatNode)); 
+    struct SeatNode *seatNode;
+    seatNode = (struct SeatNode *)malloc(sizeof(struct SeatNode));
     seatNode->class = ticket.class;
     seatNode->flightName = ticket.flightName;
     seatNode->next = NULL;
@@ -47,31 +52,34 @@ struct SeatNode* newSeat(struct ticket ticket)
 }
 
 //Check Stack Empty
-int checkEmpty(struct SeatNode* main)
+int checkEmpty(struct SeatNode *main)
 {
     return !main;
 }
 
 //Push Ticket to the Stack
-void push(struct SeatNode** main, struct ticket ticket) 
-{ 
-    struct SeatNode* SeatNode = newSeat(ticket); 
-    SeatNode->next = *main; 
-    *main = SeatNode; 
+void push(struct SeatNode **main, struct ticket ticket)
+{
+    struct SeatNode *SeatNode = newSeat(ticket);
+    SeatNode->next = *main;
+    *main = SeatNode;
     // printf("pushed\n");
 }
 
 //Pop Ticket from Stack
-struct ticket pop(struct SeatNode** main)
+struct ticket pop(struct SeatNode **main)
 {
-    if (checkEmpty(*main)){
+    if (checkEmpty(*main))
+    {
         printf("Empty Stack!");
     }
-    else{
-        struct SeatNode* temp = *main;
+    else
+    {
+        struct SeatNode *temp = *main;
         *main = (*main)->next;
         struct ticket poppedItem;
-        poppedItem.flightName = temp->flightName;
+        // poppedItem.flightName = temp->flightName;
+        strcpy(poppedItem.flightName, temp->flightName);
         poppedItem.class = temp->class;
         free(temp);
 
@@ -80,15 +88,17 @@ struct ticket pop(struct SeatNode** main)
 }
 
 //Peek the Last Ticket
-void peek(struct SeatNode* main){
-    if (checkEmpty(main)){
+void peek(struct SeatNode *main)
+{
+    if (checkEmpty(main))
+    {
         printf("Empty Stack!");
     }
-    else{
+    else
+    {
         printf("Flight Name: %s, Ticket Class: %s\n", main->flightName, classNames[main->class]);
     }
 }
-
 
 // PRIORITY QUEUE FOR PASSENGERS
 //passenger struct
@@ -98,7 +108,6 @@ struct passenger
     char flightName[8];
     enum classes wantedClass;
     enum classes givenClass;
-
 };
 
 struct queueNode
@@ -123,17 +132,21 @@ struct queueNode *newQueueNode(char flightName[8], int class, char passengerName
     return temp;
 }
 
-void pushQueue(struct queueNode **head, char *flightName, int class, char *passengerName, int priority){
+void pushQueue(struct queueNode **head, char *flightName, int class, char *passengerName, int priority)
+{
     struct queueNode *start = (*head);
 
     struct queueNode *temp = newQueueNode(flightName, class, passengerName, priority);
 
-    if((*head)->priority > priority){
+    if ((*head)->priority > priority)
+    {
         temp->next = *head;
         (*head) = temp;
     }
-    else{
-        while(start->next != NULL && start->next->priority < priority){
+    else
+    {
+        while (start->next != NULL && start->next->priority < priority)
+        {
             start = start->next;
         }
 
@@ -142,27 +155,32 @@ void pushQueue(struct queueNode **head, char *flightName, int class, char *passe
     }
 }
 
-struct passenger peekQueue(struct queueNode **head){
+struct passenger peekQueue(struct queueNode **head)
+{
     return (*head)->passenger;
 }
 
-void popQueue(struct queueNode** head){
+void popQueue(struct queueNode **head)
+{
     struct queueNode *temp = *head;
     (*head) = (*head)->next;
     free(temp);
 }
 
-int checkEmptyQueue(struct queueNode **head){
-    if (head == NULL){
+int checkEmptyQueue(struct queueNode **head)
+{
+    if (head == NULL)
+    {
         return 1;
     }
-    else{
+    else
+    {
         return 0;
     }
 }
 
-
-int main(int argc, char *argv[]){
+int main(int argc, char *argv[])
+{
 
     FILE *fptr;
     char inputLine[MAXCHAR];
@@ -172,16 +190,18 @@ int main(int argc, char *argv[]){
     struct flight *flightsArray = NULL;
 
     //check parameter count
-    if (argc != 3){
+    if (argc != 3)
+    {
         printf("Wrong parameters.");
         return -1;
-    }    
+    }
 
     //open input file
-    fptr = fopen(argv[1], "r"); 
-    
+    fptr = fopen(argv[1], "r");
+
     //check whether input file is found
-    if(fptr == NULL){
+    if (fptr == NULL)
+    {
         printf("No input file found.");
         return -1;
     }
@@ -189,39 +209,44 @@ int main(int argc, char *argv[]){
     //Declare Stack Root Node
     struct SeatNode *main = NULL;
 
-    
-    
-
     //Read Line by Line
-    while (fgets(inputLine, MAXCHAR, fptr) != NULL){
+    while (fgets(inputLine, MAXCHAR, fptr) != NULL)
+    {
         char *paramPtr = strtok(inputLine, " ");
-        
-        while(paramPtr != NULL){
+
+        while (paramPtr != NULL)
+        {
             // "addseat" command
-            if(strcmp(paramPtr, "addseat") == 0){
+            if (strcmp(paramPtr, "addseat") == 0)
+            {
 
                 struct ticket ticketTemp;
 
-                //Ticket Name
+                //Flight Name
                 paramPtr = strtok(NULL, " ");
-                ticketTemp.flightName = paramPtr;
-               
+                // ticketTemp.flightName = paramPtr;
+                strcpy(ticketTemp.flightName, paramPtr);
+
                 //Ticket Class
                 paramPtr = strtok(NULL, " ");
                 int class_tmp;
-                if(strcmp(paramPtr, "business") == 0){
+                if (strcmp(paramPtr, "business") == 0)
+                {
                     ticketTemp.class = 0;
                     class_tmp = 0;
                 }
-                else if(strcmp(paramPtr, "economy") == 0){
+                else if (strcmp(paramPtr, "economy") == 0)
+                {
                     ticketTemp.class = 1;
                     class_tmp = 1;
                 }
-                else if(strcmp(paramPtr, "standard") == 0){
+                else if (strcmp(paramPtr, "standard") == 0)
+                {
                     ticketTemp.class = 2;
                     class_tmp = 2;
                 }
-                else{
+                else
+                {
                     printf("Wrong ticket class!");
                 }
 
@@ -232,7 +257,7 @@ int main(int argc, char *argv[]){
                 //Push to the Stack
                 for (size_t i = 0; i < ticketCount; i++)
                 {
-                    push(&main, ticketTemp);    //Add Ticket
+                    push(&main, ticketTemp); //Add Ticket
                     // peek(main);
 
                     struct flight flight_temp;
@@ -241,7 +266,8 @@ int main(int argc, char *argv[]){
                     flight_temp.economyQueueCount = 0;
                     flight_temp.standardQueueCount = 0;
 
-                    if (flightsArray == NULL){ //no other flights
+                    if (flightsArray == NULL)
+                    { //no other flights
                         flightsArray = malloc(sizeof(*flightsArray));
                         strcpy(flight_temp.flightName, ticketTemp.flightName); //check
                         flight_temp.businessCount = 0;
@@ -258,23 +284,24 @@ int main(int argc, char *argv[]){
                             break;
                         case 2: //standard
                             flight_temp.standardCount++;
-                            break;                        
+                            break;
                         default:
                             printf("wrong class.");
                             break;
                         }
                         *(flightsArray) = flight_temp;
-                        
-                        
+
                         flightCount++;
                     }
-                    else{ //there are other flights
+                    else
+                    { //there are other flights
                         //check if the flight exists already
                         int foundFlag = 0;
                         for (size_t i = 0; i < flightCount; i++)
                         {
                             //flight found
-                            if(strcmp(ticketTemp.flightName, (*(flightsArray + i)).flightName) == 0){
+                            if (strcmp(ticketTemp.flightName, (*(flightsArray + i)).flightName) == 0)
+                            {
                                 switch (ticketTemp.class)
                                 {
                                 case 0: //business
@@ -288,7 +315,7 @@ int main(int argc, char *argv[]){
                                 case 2: //standard
                                     foundFlag = 1;
                                     (*(flightsArray + i)).standardCount++;
-                                    break;                        
+                                    break;
                                 default:
                                     printf("wrong class.");
                                     break;
@@ -297,7 +324,8 @@ int main(int argc, char *argv[]){
                             }
                         }
                         //if not found
-                        if (foundFlag == 0){
+                        if (foundFlag == 0)
+                        {
                             //check the realloc part, might be null
                             flightsArray = realloc(flightsArray, (flightCount + 1) * sizeof(*flightsArray));
                             strcpy(flight_temp.flightName, ticketTemp.flightName);
@@ -315,32 +343,32 @@ int main(int argc, char *argv[]){
                                 break;
                             case 2: //standard
                                 flight_temp.standardCount++;
-                                break;                        
+                                break;
                             default:
                                 printf("wrong class.");
                                 break;
                             }
                             *(flightsArray + flightCount) = flight_temp;
-                            flightCount++;                            
+                            flightCount++;
                         }
-                        
                     }
                 }
-                
+
                 //find the index of the flight
                 int index;
                 for (size_t i = 0; i < flightCount; i++)
                 {
-                    if(strcmp(ticketTemp.flightName, (*(flightsArray + i)).flightName) == 0){
+                    if (strcmp(ticketTemp.flightName, (*(flightsArray + i)).flightName) == 0)
+                    {
                         index = i;
                     }
                 }
-                 
+
                 //proper output
                 printf("addseats %s %d %d %d\n", ticketTemp.flightName,
-                                                    flightsArray[index].businessCount,
-                                                    flightsArray[index].economyCount,
-                                                    flightsArray[index].standardCount);
+                       flightsArray[index].businessCount,
+                       flightsArray[index].economyCount,
+                       flightsArray[index].standardCount);
             }
 
             // "enqueue" command
@@ -357,16 +385,20 @@ int main(int argc, char *argv[]){
                 //Class
                 int class;
                 paramPtr = strtok(NULL, " ");
-                if(strcmp(paramPtr, "business") == 0){
+                if (strcmp(paramPtr, "business") == 0)
+                {
                     class = 0;
-                }                
-                else if(strcmp(paramPtr, "economy") == 0){
+                }
+                else if (strcmp(paramPtr, "economy") == 0)
+                {
                     class = 1;
                 }
-                else if(strcmp(paramPtr, "standard")){
+                else if (strcmp(paramPtr, "standard") == 0)
+                {
                     class = 2;
                 }
-                else{
+                else
+                {
                     printf("Undetermined class!\n");
                 }
 
@@ -382,99 +414,101 @@ int main(int argc, char *argv[]){
 
                 int priorityForQueue;
 
-                if(priority){
-                    if(strcmp(priority, "diplomat\r\n") == 0){
+                if (priority)
+                {
+                    if (strcmp(priority, "diplomat\r\n") == 0)
+                    {
                         printf("diplomat\n");
                         priorityForQueue = 0;
-                    }   
-                    else if(strcmp(priority, "veteran\r\n") == 0){
+                    }
+                    else if (strcmp(priority, "veteran\r\n") == 0)
+                    {
                         printf("veteran\n");
                         priorityForQueue = 2;
                     }
                 }
-                else{
-                    if(class == 0){ //just business
+                else
+                {
+                    if (class == 0)
+                    { //just business
                         priorityForQueue = 1;
-                    }                
-                    else if(class == 1){    //just economy
+                    }
+                    else if (class == 1)
+                    { //just economy
                         priorityForQueue = 3;
                     }
-                    else if(class == 2){  //just standard
+                    else if (class == 2)
+                    { //just standard
                         priorityForQueue = 4;
                     }
                 }
 
-                  
-                
-
                 int flightIndex = -1;
                 for (size_t i = 0; i < flightCount; i++)
                 {
-                    if((strcmp(flightName, flightsArray[i].flightName)) == 0){  //found
+                    if ((strcmp(flightName, flightsArray[i].flightName)) == 0)
+                    { //found
                         flightIndex = i;
                         break;
                     }
                 }
-                
+
                 struct queueNode *queueRoot;
 
-                if(flightIndex == -1){  // flight not found
+                if (flightIndex == -1)
+                { // flight not found
                     printf("No such flight!\n");
                 }
-                else{   //flight found
-                    if(flightsArray[flightIndex].hasRoot != 1){    //if queue has not initialized
+                else
+                { //flight found
+                    if (flightsArray[flightIndex].hasRoot != 1)
+                    { //if queue has not initialized
                         flightsArray[flightIndex].rootNode = newQueueNode(flightName, class, passengerName, priorityForQueue);
                         flightsArray[flightIndex].hasRoot = 1;
                     }
-                    else{   //if queue has been initialized
+                    else
+                    { //if queue has been initialized
                         pushQueue(&(flightsArray[flightIndex].rootNode), flightName, class, passengerName, priorityForQueue);
                     }
                     //Proper Outputs and increase passenger counts
-                    if(class = 0)
+                    if (class == 0)
                     {
                         flightsArray[flightIndex].businessQueueCount++;
-                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class], 
-                                                        flightsArray[flightIndex].businessQueueCount); 
+                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
+                               flightsArray[flightIndex].businessQueueCount);
                     }
-                    else if (class = 1)
+                    else if (class == 1)
                     {
                         flightsArray[flightIndex].economyQueueCount++;
-                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class], 
-                                                        flightsArray[flightIndex].economyQueueCount); 
+                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
+                               flightsArray[flightIndex].economyQueueCount);
                     }
-                    else if (class = 2)
+                    else if (class == 2)
                     {
                         flightsArray[flightIndex].standardQueueCount++;
-                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class], 
-                                                        flightsArray[flightIndex].standardQueueCount); 
-                        
+                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
+                               flightsArray[flightIndex].standardQueueCount);
                     }
-                                           
                 }
-                
 
                 // printf("%s %s %d %s\n", queueRoot->passenger.flightName, queueRoot->passenger.passengerName,
                 //                 queueRoot->priority, classNames[queueRoot->passenger.wantedClass]);
-
-                
             }
 
             paramPtr = strtok(NULL, " ");
         }
     }
-    printf("LAST FORM OF QUEUE:\n"); 
+    printf("LAST FORM OF QUEUE:\n");
     for (size_t i = 0; i < flightCount; i++)
     {
         printf("Queue of %s: \n", flightsArray[i].flightName);
-        while(!checkEmptyQueue(&(flightsArray[i].rootNode))){
+        while (!checkEmptyQueue(&(flightsArray[i].rootNode)))
+        {
             struct passenger temp = peekQueue(&(flightsArray[i].rootNode));
             printf("%s %s %s\n", temp.passengerName, temp.flightName, classNames[temp.wantedClass]);
             popQueue(&(flightsArray[i].rootNode));
         }
     }
-    
-    
+
     fclose(fptr);
-
 }
-
