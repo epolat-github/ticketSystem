@@ -443,19 +443,30 @@ int main(int argc, char *argv[])
                 paramPtr = strtok(NULL, " ");
                 char *priority = paramPtr;
 
-                int priorityForQueue;
+                int priorityForQueue;   //-1 represents error
 
                 if (priority)
                 {
                     if (strcmp(priority, "diplomat\r\n") == 0)
                     {
-                        // printf("diplomat\n");
-                        priorityForQueue = 0;
+                        if(class != 0){
+                            priorityForQueue = -1;
+                        }
+                        else{
+                            priorityForQueue = 0;
+                        }
                     }
                     else if (strcmp(priority, "veteran\r\n") == 0)
                     {
-                        // printf("veteran\n");
-                        priorityForQueue = 2;
+                        if(class != 1){
+                            priorityForQueue = -1;
+                        }
+                        else{
+                            priorityForQueue = 2;
+                        }
+                    }
+                    else{
+                        priorityForQueue = -1;
                     }
                 }
                 else
@@ -489,8 +500,11 @@ int main(int argc, char *argv[])
                 }
 
                 struct queueNode *queueRoot;
-
-                if (flightIndex == -1)
+                
+                if(priorityForQueue == -1){
+                    printf("error\n");
+                }
+                else if (flightIndex == -1)
                 { // flight not found
                     printf("No such flight!\n");
                 }
@@ -783,7 +797,9 @@ int main(int argc, char *argv[])
                     {
                         for (size_t i = 0; i < totalUnsoldCount; i++)
                         {
-                            printf("waiting %s\n", unsoldPassengers[i].passengerName);
+                            if(strcmp(unsoldPassengers[i].flightName, flightName) == 0){
+                                printf("waiting %s\n", unsoldPassengers[i].passengerName);
+                            }                            
                         }
                     }
                 }
