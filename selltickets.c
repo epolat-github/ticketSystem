@@ -80,7 +80,7 @@ struct ticket pop(struct SeatNode **main)
 {
     if (checkEmpty(*main))
     {
-        printf("Empty Stack!");
+        printf("Empty Stack!\n");
     }
     else
     {
@@ -101,7 +101,7 @@ void peek(struct SeatNode *main)
 {
     if (checkEmpty(main))
     {
-        printf("Empty Stack!");
+        printf("Empty Stack!\n");
     }
     else
     {
@@ -196,16 +196,12 @@ int checkEmptyQueue(struct queueNode **head)
     }
 }
 
-//sell tickets
-void sellTicket(struct flight *flightsArray, int index)
-{
-    printf("%s\n", flightsArray[index].flightName);
-}
-
 int main(int argc, char *argv[])
 {
 
-    FILE *fptr;
+    FILE *inputFile;
+    FILE *outputFile;
+
     char inputLine[MAXCHAR];
 
     int flightCount = 0;
@@ -228,10 +224,12 @@ int main(int argc, char *argv[])
     }
 
     //open input file
-    fptr = fopen(argv[1], "r");
+    inputFile = fopen(argv[1], "r");
+    //open output file
+    outputFile = fopen(argv[2], "w");
 
     //check whether input file is found
-    if (fptr == NULL)
+    if (inputFile == NULL)
     {
         printf("No input file found.");
         return -1;
@@ -241,7 +239,7 @@ int main(int argc, char *argv[])
     struct SeatNode *main = NULL;
 
     //Read Line by Line
-    while (fgets(inputLine, MAXCHAR, fptr) != NULL)
+    while (fgets(inputLine, MAXCHAR, inputFile) != NULL)
     {
         char *paramPtr = strtok(inputLine, " ");
 
@@ -278,7 +276,8 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    printf("Wrong ticket class!");
+                    printf("Wrong ticket class!\n");
+                    fprintf(outputFile, "error\n");
                 }
 
                 //Ticket Quantity
@@ -326,7 +325,7 @@ int main(int argc, char *argv[])
                             flight_temp.standardCount++;
                             break;
                         default:
-                            printf("wrong class.");
+                            fprintf(outputFile, "error");
                             break;
                         }
                         *(flightsArray) = flight_temp;
@@ -344,7 +343,7 @@ int main(int argc, char *argv[])
                             {
                                 if (flightsArray[i].closed == 1)
                                 {
-                                    printf("error\n");
+                                    fprintf(outputFile, "error\n");
                                     foundFlag = 1;
                                 }
                                 else
@@ -364,7 +363,8 @@ int main(int argc, char *argv[])
                                         (*(flightsArray + i)).standardCount++;
                                         break;
                                     default:
-                                        printf("wrong class.");
+                                        printf("wrong class.\n");
+                                        fprintf(outputFile, "wrong class.\n");
                                         break;
                                     }
                                 }
@@ -393,7 +393,8 @@ int main(int argc, char *argv[])
                                 flight_temp.standardCount++;
                                 break;
                             default:
-                                printf("wrong class.");
+                                printf("wrong class.\n");
+                                fprintf(outputFile, "wrong class.\n");
                                 break;
                             }
                             *(flightsArray + flightCount) = flight_temp;
@@ -413,7 +414,7 @@ int main(int argc, char *argv[])
                 }
 
                 //proper output
-                printf("addseats %s %d %d %d\n", ticketTemp.flightName,
+                fprintf(outputFile, "addseats %s %d %d %d\n", ticketTemp.flightName,
                        flightsArray[index].businessCount,
                        flightsArray[index].economyCount,
                        flightsArray[index].standardCount);
@@ -448,6 +449,7 @@ int main(int argc, char *argv[])
                 else
                 {
                     printf("Undetermined class!\n");
+                    fprintf(outputFile, "Undetermined class!\n");
                 }
 
                 //Passenger Name
@@ -525,15 +527,15 @@ int main(int argc, char *argv[])
 
                 if (priorityForQueue == -1)
                 {
-                    printf("error\n");
+                    fprintf(outputFile, "error\n");
                 }
                 else if (flightIndex == -1)
                 { // flight not found
-                    printf("error\n");
+                    fprintf(outputFile, "error\n");
                 }
                 else if (flightsArray[flightIndex].closed == 1)
                 {
-                    printf("error\n");
+                    fprintf(outputFile, "error\n");
                 }
                 else
                 { //flight found
@@ -552,21 +554,21 @@ int main(int argc, char *argv[])
                     case 0:
                         flightsArray[flightIndex].businessQueueCount++;
                         flightsArray[flightIndex].totalPassengerCount++;
-                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
+                        fprintf(outputFile, "queue %s %s %s %d\n", flightName, passengerName, classNames[class],
                                flightsArray[flightIndex].businessQueueCount);
                         break;
 
                     case 1:
                         flightsArray[flightIndex].economyQueueCount++;
                         flightsArray[flightIndex].totalPassengerCount++;
-                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
+                        fprintf(outputFile, "queue %s %s %s %d\n", flightName, passengerName, classNames[class],
                                flightsArray[flightIndex].economyQueueCount);
                         break;
 
                     case 2:
                         flightsArray[flightIndex].standardQueueCount++;
                         flightsArray[flightIndex].totalPassengerCount++;
-                        printf("queue %s %s %s %d\n", flightName, passengerName, classNames[class],
+                        fprintf(outputFile, "queue %s %s %s %d\n", flightName, passengerName, classNames[class],
                                flightsArray[flightIndex].standardQueueCount);
                         break;
                     }
@@ -606,11 +608,11 @@ int main(int argc, char *argv[])
 
                 if (index == -1)
                 {
-                    printf("error\n");
+                    fprintf(outputFile, "error\n");
                 }
                 else if (flightsArray[index].closed == 1)
                 {
-                    printf("error\n");
+                    fprintf(outputFile, "error\n");
                 }
                 else
                 {
@@ -769,7 +771,8 @@ int main(int argc, char *argv[])
                             }
                             break;
                         default:
-                            printf("Wrong class!");
+                            printf("Wrong class\n");
+                            fprintf(outputFile, "error\n");
                             break;
                         }
                     }
@@ -789,7 +792,7 @@ int main(int argc, char *argv[])
                         }
                     }
                     //Proper Output
-                    printf("sold %s %d %d %d\n", flightsArray[index].flightName, flightsArray[index].soldBusiness, flightsArray[index].soldEconomy, flightsArray[index].soldStandard);
+                    fprintf(outputFile, "sold %s %d %d %d\n", flightsArray[index].flightName, flightsArray[index].soldBusiness, flightsArray[index].soldEconomy, flightsArray[index].soldStandard);
                 }
             }
 
@@ -816,6 +819,7 @@ int main(int argc, char *argv[])
                 if (index == -1)
                 {
                     printf("Flight not found!\n");
+                    fprintf(outputFile, "error\n");
                 }
                 else
                 {
@@ -824,7 +828,7 @@ int main(int argc, char *argv[])
                     int totalSoldCount_t = flightsArray[index].soldBusiness + flightsArray[index].soldEconomy + flightsArray[index].soldStandard;
                     int waitingCount = flightsArray[index].businessQueueCount + flightsArray[index].economyQueueCount + flightsArray[index].standardQueueCount;
 
-                    printf("closed %s %d %d\n", flightsArray[index].flightName, totalSoldCount_t, waitingCount);
+                    fprintf(outputFile, "closed %s %d %d\n", flightsArray[index].flightName, totalSoldCount_t, waitingCount);
 
                     if (flightsArray[index].soldFlag != 1)
                     {
@@ -837,7 +841,7 @@ int main(int argc, char *argv[])
                             totalUnsoldCount++;
                             flightsArray[index].totalPassengerCount--;
 
-                            printf("waiting %s\n", temp.passengerName);
+                            fprintf(outputFile, "waiting %s\n", temp.passengerName);
 
                             if (flightsArray[index].totalPassengerCount == 0)
                             {
@@ -852,7 +856,7 @@ int main(int argc, char *argv[])
                         {
                             if (strcmp(unsoldPassengers[i].flightName, flightName) == 0)
                             {
-                                printf("waiting %s\n", unsoldPassengers[i].passengerName);
+                                fprintf(outputFile, "waiting %s\n", unsoldPassengers[i].passengerName);
                             }
                         }
                     }
@@ -882,36 +886,36 @@ int main(int argc, char *argv[])
 
                 if (index == -1)
                 {
-                    printf("error\n");
+                    fprintf(outputFile, "error\n");
                 }
                 else
                 {
-                    printf("report %s\n", flightName);
-                    printf("business %d\n", flightsArray[index].soldBusiness);
+                    fprintf(outputFile, "report %s\n", flightName);
+                    fprintf(outputFile, "business %d\n", flightsArray[index].soldBusiness);
                     for (size_t i = 0; i < totalSoldCount; i++)
                     {
                         if (strcmp(flightName, soldPassengers[i].flightName) == 0 && soldPassengers[i].givenClass == 0)
                         {
-                            printf("%s\n", soldPassengers[i].passengerName);
+                            fprintf(outputFile, "%s\n", soldPassengers[i].passengerName);
                         }
                     }
-                    printf("economy %d\n", flightsArray[index].soldEconomy);
+                    fprintf(outputFile, "economy %d\n", flightsArray[index].soldEconomy);
                     for (size_t i = 0; i < totalSoldCount; i++)
                     {
                         if (strcmp(flightName, soldPassengers[i].flightName) == 0 && soldPassengers[i].givenClass == 1)
                         {
-                            printf("%s\n", soldPassengers[i].passengerName);
+                            fprintf(outputFile, "%s\n", soldPassengers[i].passengerName);
                         }
                     }
-                    printf("standard %d\n", flightsArray[index].soldStandard);
+                    fprintf(outputFile, "standard %d\n", flightsArray[index].soldStandard);
                     for (size_t i = 0; i < totalSoldCount; i++)
                     {
                         if (strcmp(flightName, soldPassengers[i].flightName) == 0 && soldPassengers[i].givenClass == 2)
                         {
-                            printf("%s\n", soldPassengers[i].passengerName);
+                            fprintf(outputFile, "%s\n", soldPassengers[i].passengerName);
                         }
                     }
-                    printf("end of report %s\n", flightName);
+                    fprintf(outputFile, "end of report %s\n", flightName);
                 }
             }
 
@@ -932,7 +936,7 @@ int main(int argc, char *argv[])
                     if (strcmp(passengerName, soldPassengers[i].passengerName) == 0)
                     {
                         foundFlag = 1;
-                        printf("info %s %s %s %s\n", soldPassengers[i].passengerName, soldPassengers[i].flightName,
+                        fprintf(outputFile, "info %s %s %s %s\n", soldPassengers[i].passengerName, soldPassengers[i].flightName,
                                classNames[soldPassengers[i].wantedClass], classNames[soldPassengers[i].givenClass]);
                     }
                 }
@@ -941,7 +945,7 @@ int main(int argc, char *argv[])
                     if (strcmp(passengerName, unsoldPassengers[i].passengerName) == 0)
                     {
                         foundFlag = 1;
-                        printf("info %s %s %s none\n", unsoldPassengers[i].passengerName, unsoldPassengers[i].flightName,
+                        fprintf(outputFile, "info %s %s %s none\n", unsoldPassengers[i].passengerName, unsoldPassengers[i].flightName,
                                classNames[unsoldPassengers[i].wantedClass]);
                     }
                 }
@@ -949,7 +953,7 @@ int main(int argc, char *argv[])
                 //if passenger not found
                 if (foundFlag == 0)
                 {
-                    printf("error\n");
+                    fprintf(outputFile, "error\n");
                 }
             }
 
@@ -973,5 +977,5 @@ int main(int argc, char *argv[])
     //     }
     // }
 
-    fclose(fptr);
+    fclose(inputFile);
 }
