@@ -25,7 +25,13 @@ struct flight
     int businessQueueCount, economyQueueCount, standardQueueCount;
     int totalPassengerCount;
 
+    //sold ticket counts
     int soldBusiness, soldEconomy, soldStandard;
+
+    //sold flag
+    int soldFlag;
+
+    int closed;
 };
 
 //ticket struct
@@ -296,6 +302,9 @@ int main(int argc, char *argv[])
                     flight_temp.soldBusiness = 0;
                     flight_temp.soldEconomy = 0;
                     flight_temp.soldStandard = 0;
+                    flight_temp.soldFlag = 0;
+
+                    flight_temp.closed = 0;
 
                     if (flightsArray == NULL)
                     { //no other flights
@@ -333,23 +342,31 @@ int main(int argc, char *argv[])
                             //flight found
                             if (strcmp(ticketTemp.flightName, (*(flightsArray + i)).flightName) == 0)
                             {
-                                switch (ticketTemp.class)
+                                if (flightsArray[i].closed == 1)
                                 {
-                                case 0: //business
+                                    printf("error\n");
                                     foundFlag = 1;
-                                    (*(flightsArray + i)).businessCount++;
-                                    break;
-                                case 1: //economy
-                                    foundFlag = 1;
-                                    (*(flightsArray + i)).economyCount++;
-                                    break;
-                                case 2: //standard
-                                    foundFlag = 1;
-                                    (*(flightsArray + i)).standardCount++;
-                                    break;
-                                default:
-                                    printf("wrong class.");
-                                    break;
+                                }
+                                else
+                                {
+                                    switch (ticketTemp.class)
+                                    {
+                                    case 0: //business
+                                        foundFlag = 1;
+                                        (*(flightsArray + i)).businessCount++;
+                                        break;
+                                    case 1: //economy
+                                        foundFlag = 1;
+                                        (*(flightsArray + i)).economyCount++;
+                                        break;
+                                    case 2: //standard
+                                        foundFlag = 1;
+                                        (*(flightsArray + i)).standardCount++;
+                                        break;
+                                    default:
+                                        printf("wrong class.");
+                                        break;
+                                    }
                                 }
                                 break;
                             }
@@ -443,29 +460,34 @@ int main(int argc, char *argv[])
                 paramPtr = strtok(NULL, " ");
                 char *priority = paramPtr;
 
-                int priorityForQueue;   //-1 represents error
+                int priorityForQueue; //-1 represents error
 
                 if (priority)
                 {
                     if (strcmp(priority, "diplomat\r\n") == 0)
                     {
-                        if(class != 0){
+                        if (class != 0)
+                        {
                             priorityForQueue = -1;
                         }
-                        else{
+                        else
+                        {
                             priorityForQueue = 0;
                         }
                     }
                     else if (strcmp(priority, "veteran\r\n") == 0)
                     {
-                        if(class != 1){
+                        if (class != 1)
+                        {
                             priorityForQueue = -1;
                         }
-                        else{
+                        else
+                        {
                             priorityForQueue = 2;
                         }
                     }
-                    else{
+                    else
+                    {
                         priorityForQueue = -1;
                     }
                 }
@@ -500,13 +522,18 @@ int main(int argc, char *argv[])
                 }
 
                 struct queueNode *queueRoot;
-                
-                if(priorityForQueue == -1){
+
+                if (priorityForQueue == -1)
+                {
                     printf("error\n");
                 }
                 else if (flightIndex == -1)
                 { // flight not found
-                    printf("No such flight!\n");
+                    printf("error\n");
+                }
+                else if (flightsArray[flightIndex].closed == 1)
+                {
+                    printf("error\n");
                 }
                 else
                 { //flight found
@@ -579,10 +606,15 @@ int main(int argc, char *argv[])
 
                 if (index == -1)
                 {
-                    printf("No such flight.\n");
+                    printf("error\n");
+                }
+                else if (flightsArray[index].closed == 1)
+                {
+                    printf("error\n");
                 }
                 else
                 {
+                    flightsArray[index].soldFlag = 1;
                     totalSeatCount = (flightsArray[index].businessCount) + (flightsArray[index].economyCount) + (flightsArray[index].standardCount);
 
                     while (flightsArray[index].hasRoot == 1 && totalSeatCount != 0)
@@ -756,9 +788,9 @@ int main(int argc, char *argv[])
                             flightsArray[index].hasRoot = 0;
                         }
                     }
+                    //Proper Output
+                    printf("sold %s %d %d %d\n", flightsArray[index].flightName, flightsArray[index].soldBusiness, flightsArray[index].soldEconomy, flightsArray[index].soldStandard);
                 }
-                //Proper Output
-                printf("sold %s %d %d %d\n", flightsArray[index].flightName, flightsArray[index].soldBusiness, flightsArray[index].soldEconomy, flightsArray[index].soldStandard);
             }
 
             //"close" command
@@ -787,19 +819,41 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    int totalSoldCount = flightsArray[index].soldBusiness + flightsArray[index].soldEconomy + flightsArray[index].soldStandard;
+                    //close the flight
+                    flightsArray[index].closed = 1;
+                    int totalSoldCount_t = flightsArray[index].soldBusiness + flightsArray[index].soldEconomy + flightsArray[index].soldStandard;
                     int waitingCount = flightsArray[index].businessQueueCount + flightsArray[index].economyQueueCount + flightsArray[index].standardQueueCount;
 
-                    printf("closed %s %d %d\n", flightsArray[index].flightName, totalSoldCount, waitingCount);
+                    printf("closed %s %d %d\n", flightsArray[index].flightName, totalSoldCount_t, waitingCount);
 
+                    if (flightsArray[index].soldFlag != 1)
+                    {
+                        while (flightsArray[index].hasRoot == 1 )
+                        {
+                            struct passenger temp = peekQueue(&(flightsArray[index].rootNode));
+                            popQueue(&(flightsArray[index].rootNode));
+                            unsoldPassengers = realloc(unsoldPassengers, (totalUnsoldCount + 1) * sizeof(struct passenger));
+                            unsoldPassengers[totalUnsoldCount] = temp;
+                            totalUnsoldCount++;
+                            flightsArray[index].totalPassengerCount--;
+
+                            printf("waiting %s\n", temp.passengerName);
+
+                            if (flightsArray[index].totalPassengerCount == 0)
+                            {
+                                flightsArray[index].hasRoot = 0;
+                            }
+                        }
+                    }
                     //if there are passengers left unsold
-                    if (totalUnsoldCount != 0)
+                    else if (totalUnsoldCount != 0)
                     {
                         for (size_t i = 0; i < totalUnsoldCount; i++)
                         {
-                            if(strcmp(unsoldPassengers[i].flightName, flightName) == 0){
+                            if (strcmp(unsoldPassengers[i].flightName, flightName) == 0)
+                            {
                                 printf("waiting %s\n", unsoldPassengers[i].passengerName);
-                            }                            
+                            }
                         }
                     }
                 }
@@ -828,7 +882,7 @@ int main(int argc, char *argv[])
 
                 if (index == -1)
                 {
-                    printf("No such flight!.");
+                    printf("error\n");
                 }
                 else
                 {
@@ -893,8 +947,9 @@ int main(int argc, char *argv[])
                 }
 
                 //if passenger not found
-                if (foundFlag == 0){
-                    printf("No such pasenger!\n");
+                if (foundFlag == 0)
+                {
+                    printf("error\n");
                 }
             }
 
