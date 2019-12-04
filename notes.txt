@@ -16,3 +16,4 @@ yolla "flights" arrayinde bu structlar tutulabilir.
 --------priority'si normalde olmayan sınıflara input'ta priority girilmişse == "error"
 --------close'dan sonra satamazsın. "error" ver. input3.txt ile test et.
 --------l.796 totalUnsold 0 kalıyor, close'dan sonra unsoldları bastırmıyor.
+--------businessCount ---> businessSeatCount

@@ -154,21 +154,21 @@ void pushQueue(struct queueNode **head, char *flightName, int class, char *passe
     }
     else
     {
-        if (start->next != NULL && start->next->priority == priority)
-        {
-            temp->next = start->next->next;
-            start->next->next = temp;
-        }
-        else
-        {
-            while (start->next != NULL && start->next->priority < priority)
+        // if (start->next != NULL && start->next->priority == priority)
+        // {
+        //     temp->next = start->next->next;
+        //     start->next->next = temp;
+        // }
+        // else
+        // {
+            while (start->next != NULL && start->next->priority <= priority)
             {
                 start = start->next;
             }
 
             temp->next = start->next;
             start->next = temp;
-        }
+        // }
     }
 }
 
