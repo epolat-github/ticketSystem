@@ -80,7 +80,7 @@ struct ticket pop(struct SeatNode **main)
 {
     if (checkEmpty(*main))
     {
-        printf("Empty Stack!\n");
+        printf("Empty Stack!");
     }
     else
     {
@@ -101,7 +101,7 @@ void peek(struct SeatNode *main)
 {
     if (checkEmpty(main))
     {
-        printf("Empty Stack!\n");
+        printf("Empty Stack!");
     }
     else
     {
@@ -159,16 +159,14 @@ void pushQueue(struct queueNode **head, char *flightName, int class, char *passe
         //     temp->next = start->next->next;
         //     start->next->next = temp;
         // }
-        // else
-        // {
-            while (start->next != NULL && start->next->priority <= priority)
-            {
-                start = start->next;
-            }
 
-            temp->next = start->next;
-            start->next = temp;
-        // }
+        while (start->next != NULL && start->next->priority <= priority)
+        {
+            start = start->next;
+        }
+
+        temp->next = start->next;
+        start->next = temp;
     }
 }
 
@@ -196,12 +194,18 @@ int checkEmptyQueue(struct queueNode **head)
     }
 }
 
+//sell tickets
+void sellTicket(struct flight *flightsArray, int index)
+{
+    printf("%s\n", flightsArray[index].flightName);
+}
+
 int main(int argc, char *argv[])
 {
 
     FILE *inputFile;
     FILE *outputFile;
-
+    
     char inputLine[MAXCHAR];
 
     int flightCount = 0;
@@ -214,7 +218,13 @@ int main(int argc, char *argv[])
 
     //holds passengers who couldn't buy ticket
     int totalUnsoldCount = 0;
-    struct passenger *unsoldPassengers = NULL;
+    struct passenger *totalUnsolds = NULL;
+    int totalUnsoldBusinessCount = 0;
+    struct passenger *unsoldBusiness = NULL;
+    int totalUnsoldEconomyCount = 0;
+    struct passenger *unsoldEconomy = NULL;
+    int totalUnsoldStandardCount = 0;
+    struct passenger *unsoldStandard = NULL;
 
     //check parameter count
     if (argc != 3)
@@ -225,6 +235,7 @@ int main(int argc, char *argv[])
 
     //open input file
     inputFile = fopen(argv[1], "r");
+
     //open output file
     outputFile = fopen(argv[2], "w");
 
@@ -276,7 +287,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    printf("Wrong ticket class!\n");
+                    printf("Wrong ticket class!");
                     fprintf(outputFile, "error\n");
                 }
 
@@ -325,7 +336,8 @@ int main(int argc, char *argv[])
                             flight_temp.standardCount++;
                             break;
                         default:
-                            fprintf(outputFile, "error");
+                            printf("wrong class.\n");
+                            fprintf(outputFile, "error\n");
                             break;
                         }
                         *(flightsArray) = flight_temp;
@@ -364,7 +376,7 @@ int main(int argc, char *argv[])
                                         break;
                                     default:
                                         printf("wrong class.\n");
-                                        fprintf(outputFile, "wrong class.\n");
+                                        fprintf(outputFile, "error\n");
                                         break;
                                     }
                                 }
@@ -394,7 +406,7 @@ int main(int argc, char *argv[])
                                 break;
                             default:
                                 printf("wrong class.\n");
-                                fprintf(outputFile, "wrong class.\n");
+                                fprintf(outputFile, "error\n");
                                 break;
                             }
                             *(flightsArray + flightCount) = flight_temp;
@@ -449,7 +461,7 @@ int main(int argc, char *argv[])
                 else
                 {
                     printf("Undetermined class!\n");
-                    fprintf(outputFile, "Undetermined class!\n");
+                    fprintf(outputFile, "error\n");
                 }
 
                 //Passenger Name
@@ -616,10 +628,12 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
+
                     flightsArray[index].soldFlag = 1;
+                    //silinecek
                     totalSeatCount = (flightsArray[index].businessCount) + (flightsArray[index].economyCount) + (flightsArray[index].standardCount);
 
-                    while (flightsArray[index].hasRoot == 1 && totalSeatCount != 0)
+                    while (flightsArray[index].hasRoot == 1)
                     {
                         struct passenger temp = peekQueue(&(flightsArray[index].rootNode));
 
@@ -632,15 +646,9 @@ int main(int argc, char *argv[])
 
                                 flightsArray[index].businessCount--;
                                 flightsArray[index].businessQueueCount--;
-                                flightsArray[index].totalPassengerCount--;
                                 totalSeatCount--;
-                                // soldSeatCount[0]++;
-                                flightsArray[index].soldBusiness++;
 
-                                if (flightsArray[index].totalPassengerCount == 0)
-                                {
-                                    flightsArray[index].hasRoot = 0;
-                                }
+                                flightsArray[index].soldBusiness++;
 
                                 popQueue(&(flightsArray[index].rootNode));
                                 soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
@@ -649,55 +657,68 @@ int main(int argc, char *argv[])
                             }
                             else
                             {
-                                // printf("No business class left. Trying economy.\n");
-                                if (flightsArray[index].economyCount != 0)
-                                {
-                                    temp.givenClass = 1;
+                                popQueue(&(flightsArray[index].rootNode));
+                                totalUnsolds = realloc(totalUnsolds, (totalUnsoldCount + 1) * sizeof(struct passenger));
+                                totalUnsolds[totalUnsoldCount] = temp;
+                                totalUnsoldCount++;
+                            }
+                            flightsArray[index].totalPassengerCount--;
 
-                                    flightsArray[index].economyCount--;
-                                    flightsArray[index].economyQueueCount--;
-                                    flightsArray[index].totalPassengerCount--;
-                                    totalSeatCount--;
-                                    // soldSeatCount[1]++;
-                                    flightsArray[index].soldEconomy++;
-
-                                    if (flightsArray[index].totalPassengerCount == 0)
-                                    {
-                                        flightsArray[index].hasRoot = 0;
-                                    }
-
-                                    popQueue(&(flightsArray[index].rootNode));
-                                    soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
-                                    soldPassengers[totalSoldCount] = temp;
-                                    totalSoldCount++;
-                                }
-                                else
-                                {
-                                    // printf("No economy class left. Trying standard.\n");
-                                    if (flightsArray[index].standardCount != 0)
-                                    {
-                                        temp.givenClass = 2;
-
-                                        flightsArray[index].standardCount--;
-                                        flightsArray[index].standardQueueCount--;
-                                        flightsArray[index].totalPassengerCount--;
-                                        totalSeatCount--;
-                                        // soldSeatCount[2]++;
-                                        flightsArray[index].soldStandard++;
-
-                                        if (flightsArray[index].totalPassengerCount == 0)
-                                        {
-                                            flightsArray[index].hasRoot = 0;
-                                        }
-
-                                        popQueue(&(flightsArray[index].rootNode));
-                                        soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
-                                        soldPassengers[totalSoldCount] = temp;
-                                        totalSoldCount++;
-                                    }
-                                }
+                            if (flightsArray[index].totalPassengerCount == 0)
+                            {
+                                flightsArray[index].hasRoot = 0;
                             }
                             break;
+                            // {
+                            //     // printf("No business class left. Trying economy.\n");
+                            //     if (flightsArray[index].economyCount != 0)
+                            //     {
+                            //         temp.givenClass = 1;
+
+                            //         flightsArray[index].economyCount--;
+                            //         flightsArray[index].economyQueueCount--;
+                            //         flightsArray[index].totalPassengerCount--;
+                            //         totalSeatCount--;
+                            //         // soldSeatCount[1]++;
+                            //         flightsArray[index].soldEconomy++;
+
+                            //         if (flightsArray[index].totalPassengerCount == 0)
+                            //         {
+                            //             flightsArray[index].hasRoot = 0;
+                            //         }
+
+                            //         popQueue(&(flightsArray[index].rootNode));
+                            //         soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
+                            //         soldPassengers[totalSoldCount] = temp;
+                            //         totalSoldCount++;
+                            //     }
+                            //     else
+                            //     {
+                            //         // printf("No economy class left. Trying standard.\n");
+                            //         if (flightsArray[index].standardCount != 0)
+                            //         {
+                            //             temp.givenClass = 2;
+
+                            //             flightsArray[index].standardCount--;
+                            //             flightsArray[index].standardQueueCount--;
+                            //             flightsArray[index].totalPassengerCount--;
+                            //             totalSeatCount--;
+                            //             // soldSeatCount[2]++;
+                            //             flightsArray[index].soldStandard++;
+
+                            //             if (flightsArray[index].totalPassengerCount == 0)
+                            //             {
+                            //                 flightsArray[index].hasRoot = 0;
+                            //             }
+
+                            //             popQueue(&(flightsArray[index].rootNode));
+                            //             soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
+                            //             soldPassengers[totalSoldCount] = temp;
+                            //             totalSoldCount++;
+                            //         }
+                            //     }
+                            // }
+
                         case 1: //economy
                             if (flightsArray[index].economyCount != 0)
                             {
@@ -705,15 +726,9 @@ int main(int argc, char *argv[])
 
                                 flightsArray[index].economyCount--;
                                 flightsArray[index].economyQueueCount--;
-                                flightsArray[index].totalPassengerCount--;
                                 totalSeatCount--;
                                 // soldSeatCount[1]++;
                                 flightsArray[index].soldEconomy++;
-
-                                if (flightsArray[index].totalPassengerCount == 0)
-                                {
-                                    flightsArray[index].hasRoot = 0;
-                                }
 
                                 popQueue(&(flightsArray[index].rootNode));
                                 soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
@@ -722,28 +737,36 @@ int main(int argc, char *argv[])
                             }
                             else
                             {
-                                // printf("No economy class left. Trying standard.\n");
-                                if (flightsArray[index].standardCount != 0)
-                                {
-                                    temp.givenClass = 2;
+                                popQueue(&(flightsArray[index].rootNode));
+                                totalUnsolds = realloc(totalUnsolds, (totalUnsoldCount + 1) * sizeof(struct passenger));
+                                totalUnsolds[totalUnsoldCount] = temp;
+                                totalUnsoldCount++;
+                                // if (flightsArray[index].standardCount != 0)
+                                // {
+                                //     temp.givenClass = 2;
 
-                                    flightsArray[index].standardCount--;
-                                    flightsArray[index].standardQueueCount--;
-                                    flightsArray[index].totalPassengerCount--;
-                                    totalSeatCount--;
-                                    // soldSeatCount[2]++;
-                                    flightsArray[index].soldStandard++;
+                                //     flightsArray[index].standardCount--;
+                                //     flightsArray[index].standardQueueCount--;
+                                //     flightsArray[index].totalPassengerCount--;
+                                //     totalSeatCount--;
+                                //     // soldSeatCount[2]++;
+                                //     flightsArray[index].soldStandard++;
 
-                                    if (flightsArray[index].totalPassengerCount == 0)
-                                    {
-                                        flightsArray[index].hasRoot = 0;
-                                    }
+                                //     if (flightsArray[index].totalPassengerCount == 0)
+                                //     {
+                                //         flightsArray[index].hasRoot = 0;
+                                //     }
 
-                                    popQueue(&(flightsArray[index].rootNode));
-                                    soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
-                                    soldPassengers[totalSoldCount] = temp;
-                                    totalSoldCount++;
-                                }
+                                //     popQueue(&(flightsArray[index].rootNode));
+                                //     soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
+                                //     soldPassengers[totalSoldCount] = temp;
+                                //     totalSoldCount++;
+                                // }
+                            }
+                            flightsArray[index].totalPassengerCount--;
+                            if (flightsArray[index].totalPassengerCount == 0)
+                            {
+                                flightsArray[index].hasRoot = 0;
                             }
 
                             break;
@@ -754,43 +777,102 @@ int main(int argc, char *argv[])
 
                                 flightsArray[index].standardCount--;
                                 flightsArray[index].standardQueueCount--;
-                                flightsArray[index].totalPassengerCount--;
+
                                 totalSeatCount--;
                                 // soldSeatCount[2]++;
                                 flightsArray[index].soldStandard++;
-
-                                if (flightsArray[index].totalPassengerCount == 0)
-                                {
-                                    flightsArray[index].hasRoot = 0;
-                                }
 
                                 popQueue(&(flightsArray[index].rootNode));
                                 soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
                                 soldPassengers[totalSoldCount] = temp;
                                 totalSoldCount++;
                             }
+                            else
+                            {
+                                popQueue(&(flightsArray[index].rootNode));
+                                totalUnsolds = realloc(totalUnsolds, (totalUnsoldCount + 1) * sizeof(struct passenger));
+                                totalUnsolds[totalUnsoldCount] = temp;
+                                totalUnsoldCount++;
+                            }
+                            flightsArray[index].totalPassengerCount--;
+                            if (flightsArray[index].totalPassengerCount == 0)
+                            {
+                                flightsArray[index].hasRoot = 0;
+                            }
+
                             break;
                         default:
-                            printf("Wrong class\n");
+                            printf("Wrong class!\n");
                             fprintf(outputFile, "error\n");
                             break;
                         }
                     }
-                    //Determine passenger who couldn't buy ticket
-                    while (flightsArray[index].hasRoot == 1)
+                    //sell left standard tickets to business
+                    for (size_t i = 0; i < totalUnsoldCount; i++)
                     {
-                        struct passenger temp = peekQueue(&(flightsArray[index].rootNode));
-                        popQueue(&(flightsArray[index].rootNode));
-                        unsoldPassengers = realloc(unsoldPassengers, (totalUnsoldCount + 1) * sizeof(struct passenger));
-                        unsoldPassengers[totalUnsoldCount] = temp;
-                        totalUnsoldCount++;
-                        flightsArray[index].totalPassengerCount--;
-
-                        if (flightsArray[index].totalPassengerCount == 0)
+                        if (strcmp(totalUnsolds[i].flightName, flightsArray[index].flightName) == 0)
                         {
-                            flightsArray[index].hasRoot = 0;
+                            if (flightsArray[index].standardCount != 0)
+                            {
+                                totalUnsolds[i].givenClass = 2;
+
+                                soldPassengers = realloc(soldPassengers, (totalSoldCount + 1) * sizeof(struct passenger));
+                                soldPassengers[totalSoldCount] = totalUnsolds[i];
+                                totalSoldCount++;
+
+                                flightsArray[index].soldStandard++;
+                                flightsArray[index].standardCount--;
+                                flightsArray[index].totalPassengerCount--;
+                                totalSeatCount--;
+
+                                // if (flightsArray[index].totalPassengerCount == 0)
+                                // {
+                                //     flightsArray[index].hasRoot = 0;
+                                // }
+
+                                switch (totalUnsolds[i].wantedClass)
+                                {
+                                case 0:
+                                    flightsArray[index].businessQueueCount--;
+                                    break;
+                                case 1:
+                                    flightsArray[index].economyQueueCount--;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                switch (totalUnsolds[i].wantedClass)
+                                {
+                                case 0:
+                                    unsoldBusiness = realloc(unsoldBusiness, (totalUnsoldBusinessCount + 1) * sizeof(struct passenger));
+                                    unsoldBusiness[totalUnsoldBusinessCount] = totalUnsolds[i];
+                                    totalUnsoldBusinessCount++;
+                                    break;
+                                case 1:
+                                    unsoldEconomy = realloc(unsoldEconomy, (totalUnsoldEconomyCount + 1) * sizeof(struct passenger));
+                                    unsoldEconomy[totalUnsoldEconomyCount] = totalUnsolds[i];
+                                    totalUnsoldEconomyCount++;
+                                    break;
+                                }
+                            }
                         }
                     }
+
+                    // while (flightsArray[index].hasRoot == 1)
+                    // {
+                    //     struct passenger temp = peekQueue(&(flightsArray[index].rootNode));
+                    //     popQueue(&(flightsArray[index].rootNode));
+                    //     unsoldPassengers = realloc(unsoldPassengers, (totalUnsoldCount + 1) * sizeof(struct passenger));
+                    //     unsoldPassengers[totalUnsoldCount] = temp;
+                    //     totalUnsoldCount++;
+                    //     flightsArray[index].totalPassengerCount--;
+
+                    //     if (flightsArray[index].totalPassengerCount == 0)
+                    //     {
+                    //         flightsArray[index].hasRoot = 0;
+                    //     }
+                    // }
                     //Proper Output
                     fprintf(outputFile, "sold %s %d %d %d\n", flightsArray[index].flightName, flightsArray[index].soldBusiness, flightsArray[index].soldEconomy, flightsArray[index].soldStandard);
                 }
@@ -825,6 +907,7 @@ int main(int argc, char *argv[])
                 {
                     //close the flight
                     flightsArray[index].closed = 1;
+
                     int totalSoldCount_t = flightsArray[index].soldBusiness + flightsArray[index].soldEconomy + flightsArray[index].soldStandard;
                     int waitingCount = flightsArray[index].businessQueueCount + flightsArray[index].economyQueueCount + flightsArray[index].standardQueueCount;
 
@@ -832,16 +915,33 @@ int main(int argc, char *argv[])
 
                     if (flightsArray[index].soldFlag != 1)
                     {
-                        while (flightsArray[index].hasRoot == 1 )
+                        while (flightsArray[index].hasRoot == 1)
                         {
                             struct passenger temp = peekQueue(&(flightsArray[index].rootNode));
                             popQueue(&(flightsArray[index].rootNode));
-                            unsoldPassengers = realloc(unsoldPassengers, (totalUnsoldCount + 1) * sizeof(struct passenger));
-                            unsoldPassengers[totalUnsoldCount] = temp;
-                            totalUnsoldCount++;
-                            flightsArray[index].totalPassengerCount--;
+
+                            switch (temp.wantedClass)
+                            {
+                            case 0:
+                                unsoldBusiness = realloc(unsoldBusiness, (totalUnsoldBusinessCount + 1) * sizeof(struct passenger));
+                                unsoldBusiness[totalUnsoldBusinessCount] = temp;
+                                totalUnsoldBusinessCount++;
+                                break;
+                            case 1:
+                                unsoldEconomy = realloc(unsoldEconomy, (totalUnsoldEconomyCount + 1) * sizeof(struct passenger));
+                                unsoldEconomy[totalUnsoldEconomyCount] = temp;
+                                totalUnsoldEconomyCount++;
+                                break;
+                            case 2:
+                                unsoldStandard = realloc(unsoldStandard, (totalUnsoldStandardCount + 1) * sizeof(struct passenger));
+                                unsoldStandard[totalUnsoldStandardCount] = temp;
+                                totalUnsoldStandardCount++;
+                                break;
+                            }
 
                             fprintf(outputFile, "waiting %s\n", temp.passengerName);
+
+                            flightsArray[index].totalPassengerCount--;
 
                             if (flightsArray[index].totalPassengerCount == 0)
                             {
@@ -850,13 +950,32 @@ int main(int argc, char *argv[])
                         }
                     }
                     //if there are passengers left unsold
-                    else if (totalUnsoldCount != 0)
+                    else
                     {
-                        for (size_t i = 0; i < totalUnsoldCount; i++)
+                        //for unsold business tickets
+                        for (size_t i = 0; i < totalUnsoldBusinessCount; i++)
                         {
-                            if (strcmp(unsoldPassengers[i].flightName, flightName) == 0)
+                            if (strcmp(unsoldBusiness[i].flightName, flightName) == 0)
                             {
-                                fprintf(outputFile, "waiting %s\n", unsoldPassengers[i].passengerName);
+                                fprintf(outputFile, "waiting %s\n", unsoldBusiness[i].passengerName);
+                            }
+                        }
+
+                        //for unsold economy tickets
+                        for (size_t i = 0; i < totalUnsoldEconomyCount; i++)
+                        {
+                            if (strcmp(unsoldEconomy[i].flightName, flightName) == 0)
+                            {
+                                fprintf(outputFile, "waiting %s\n", unsoldEconomy[i].passengerName);
+                            }
+                        }
+
+                        //for unsold standard tickets
+                        for (size_t i = 0; i < totalUnsoldStandardCount; i++)
+                        {
+                            if (strcmp(unsoldStandard[i].flightName, flightName) == 0)
+                            {
+                                fprintf(outputFile, "waiting %s\n", unsoldStandard[i].passengerName);
                             }
                         }
                     }
@@ -930,6 +1049,7 @@ int main(int argc, char *argv[])
                 passengerName = strtok(passengerName, "\r");
                 strtok(NULL, " ");
 
+                //First, traversing the sold list
                 int foundFlag = 0;
                 for (size_t i = 0; i < totalSoldCount; i++)
                 {
@@ -940,15 +1060,38 @@ int main(int argc, char *argv[])
                                classNames[soldPassengers[i].wantedClass], classNames[soldPassengers[i].givenClass]);
                     }
                 }
-                for (size_t i = 0; i < totalUnsoldCount; i++)
+
+                //Traversing unsold lists
+                for (size_t i = 0; i < totalUnsoldBusinessCount; i++)
                 {
-                    if (strcmp(passengerName, unsoldPassengers[i].passengerName) == 0)
+                    if (strcmp(passengerName, unsoldBusiness[i].passengerName) == 0)
                     {
                         foundFlag = 1;
-                        fprintf(outputFile, "info %s %s %s none\n", unsoldPassengers[i].passengerName, unsoldPassengers[i].flightName,
-                               classNames[unsoldPassengers[i].wantedClass]);
+                        fprintf(outputFile, "info %s %s %s none\n", unsoldBusiness[i].passengerName, unsoldBusiness[i].flightName,
+                               classNames[unsoldBusiness[i].wantedClass]);
                     }
                 }
+
+                for (size_t i = 0; i < totalUnsoldEconomyCount; i++)
+                {
+                    if (strcmp(passengerName, unsoldEconomy[i].passengerName) == 0)
+                    {
+                        foundFlag = 1;
+                        fprintf(outputFile, "info %s %s %s none\n", unsoldEconomy[i].passengerName, unsoldEconomy[i].flightName,
+                               classNames[unsoldEconomy[i].wantedClass]);
+                    }
+                }
+
+                for (size_t i = 0; i < totalUnsoldStandardCount; i++)
+                {
+                    if (strcmp(passengerName, unsoldStandard[i].passengerName) == 0)
+                    {
+                        foundFlag = 1;
+                        fprintf(outputFile, "info %s %s %s none\n", unsoldStandard[i].passengerName, unsoldStandard[i].flightName,
+                               classNames[unsoldStandard[i].wantedClass]);
+                    }
+                }
+                
 
                 //if passenger not found
                 if (foundFlag == 0)
@@ -978,4 +1121,5 @@ int main(int argc, char *argv[])
     // }
 
     fclose(inputFile);
+    fclose(outputFile);
 }

@@ -18,19 +18,19 @@ business 2
 psg_bus_3
 psg_bus_1
 economy 3
-psg_bus_2
-psg_bus_4
 psg_eco_6
-standard 4
 psg_eco_7
 psg_eco_1
+standard 4
+psg_std_1
+psg_bus_2
+psg_bus_4
 psg_eco_2
-psg_eco_3
 end of report tk1212
 closed tk1212 9 2
+waiting psg_eco_3
 waiting psg_eco_4
-waiting psg_std_1
-info psg_bus_4 tk1212 business economy
+info psg_bus_4 tk1212 business standard
 info psg_eco_2 tk1212 economy standard
-info psg_eco_3 tk1212 economy standard
+info psg_eco_3 tk1212 economy none
 info psg_eco_6 tk1212 economy economy
